@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const UserSchema = new Schema(
   {
     name: { type: String, require: true },
-    userName: { type: String, unique: true },
+    username: { type: String, unique: true },
     email: { type: String, require: true, unique: true },
     phone: { type: String, require: true, unique: true },
     password: { type: String, require: true },
@@ -18,6 +18,15 @@ const UserSchema = new Schema(
     timestamps: true,
   }
 );
+
+// Pre-save hook to generate the username
+UserSchema.pre("save", function (next) {
+  if (!this.username) {
+    const randomNumber = Math.floor(Math.random() * 1000); // generate random number
+    this.username = `${this.name}${randomNumber}`.toLowerCase();
+  }
+  next();
+});
 
 const UserModel = mongoose.model("user", UserSchema);
 
