@@ -6,6 +6,7 @@ const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
+const { accountDbConnection, appDbConnection } = require("./utils/db");
 const { Token } = require("./utils/core");
 const Redis = require("./utils/redis");
 // const { Migrator } = require("./migrations/migrator");
@@ -33,7 +34,7 @@ app.use(express.json());
 // Connect db and run server
 const runServer = () => {
   accountDbConnection.once("open", () => {
-    appDbConnection.once("open", () => {  
+    appDbConnection.once("open", () => {
       console.log("=> Success, connected to Account database");
       console.log("=> Success, connected to App database");
       app.listen(port, console.log(`=> Server is running at port ${port}`));
