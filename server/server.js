@@ -7,14 +7,14 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
 const { Token } = require("./utils/core");
-const { Redis } = require("./utils/redis");
+const Redis = require("./utils/redis");
 // const { Migrator } = require("./migrations/migrator");
 const { errorHandler, notFound } = require("./middleware/error-middleware");
 
-const { userRoute } = require("./routes/user-route");
-const { chatRoute } = require("./routes/chat-route");
-const { messageRoute } = require("./routes/message-route");
-const path = require("path");
+const userRoute = require("./routes/user-route");
+const chatRoute = require("./routes/chat-route");
+const messageRoute = require("./routes/message-route");
+// const path = require("path");
 
 // variables
 const port = process.env.PORT || 3000;
@@ -30,18 +30,15 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 // Main Function
-const runServer = async () => {
-  // DB Connection
-  await mongoose
-    .connect(process.env.MONGODB_URI)
-    .then(() => {
-      console.log("=> Success, MONGODB connected");
-    })
-    .then(() => {
-      // Run Server
-      server.listen(port, console.log(`=> Server is running at port ${port}`));
-    })
-    .catch((err) => console.error(`=> MONGODB connect error! ${err.message}`));
+// Connect db and run server
+const runServer = () => {
+  accountDbConnection.once("open", () => {
+    appDbConnection.once("open", () => {  
+      console.log("=> Success, connected to Account database");
+      console.log("=> Success, connected to App database");
+      app.listen(port, console.log(`=> Server is running at port ${port}`));
+    });
+  });
 };
 // Migrate Data
 //   await Migrator.migrate();

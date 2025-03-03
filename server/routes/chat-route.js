@@ -41,8 +41,4 @@ router
     removeUserFromGroup
   );
 
-const chatRoute = router;
-
-module.exports = {
-  chatRoute,
-};
+module.exports = router;

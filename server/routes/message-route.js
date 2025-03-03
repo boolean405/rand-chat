@@ -23,5 +23,4 @@ router
     allMessages
   );
 
-const messageRoute = router;
-module.exports = { messageRoute };
+module.exports = router

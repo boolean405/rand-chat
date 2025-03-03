@@ -1,31 +1,9 @@
 const { Token } = require("./core");
-const { Redis } = require("./redis");
+// const Redis = require("./redis");
+const UserDB = require('../models/user-model')
 
 const validateToken = () => {
   return async (req, res, next) => {
-    // let authHeader = await req.headers.authorization;
-    // if (!authHeader) {
-    //   next(new Error("Need Authorization"));
-    //   return;
-    // }
-    // let token = authHeader.split(" ")[1];
-    // let decoded = Token.verifyToken(token);
-    // if (
-    //   decoded === "invalid token" ||
-    //   decoded === "invalid signature" ||
-    //   decoded === "jwt malformed"
-    // ) {
-    //   next(new Error("Invalid authorization token"));
-    //   return;
-    // }
-    // if (decoded === "jwt expired") {
-    //   next(new Error("Authorization token expired"));
-    //   return;
-    // }
-    // req.userId = decoded.id;
-    // req.user = await Redis.get(decoded.id);
-    // next();
-
     try {
       let authHeader = await req.headers.authorization;
       if (!authHeader) {
@@ -34,7 +12,8 @@ const validateToken = () => {
       let token = authHeader.split(" ")[1];
       let decoded = Token.verifyToken(token);
       req.userId = decoded.id;
-      req.user = await Redis.get(decoded.id);
+      req.user = await UserDB.findById(decoded.id).select('-password');
+      // req.user = await Redis.get(decoded.id);
       next();
     } catch (err) {
       const error = new Error(err.message);

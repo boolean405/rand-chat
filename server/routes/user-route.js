@@ -15,10 +15,8 @@ const {
   validateBody,
 } = require("../utils/validator");
 
-router
-  .route("/")
-  .post(validateBody(UserSchema.register), register)
-  .get(validateToken(), searchUser);
+router.route("/register").post(validateBody(UserSchema.register), register);
+router.route("/search").get(validateToken(), searchUser);
 
 router.post("/login", [validateBody(UserSchema.login), login]);
 router.get("/paginate/:pageNum", paginateUser);
@@ -31,8 +29,4 @@ router.delete("/", [
   deleteUser,
 ]);
 
-const userRoute = router;
-
-module.exports = {
-  userRoute,
-};
+module.exports = router;

@@ -48,4 +48,4 @@ const Redis = {
   },
 };
 
-module.exports = { Redis };
+module.exports = Redis;
