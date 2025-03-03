@@ -2,6 +2,7 @@ const MessageDB = require("../models/message-model");
 const ChatDB = require("../models/chat-model");
 const UserDB = require("../models/user-model");
 const { resMsg } = require("../utils/core");
+const { accountDbConnection } = require("../utils/db");
 
 const sendMessage = async (req, res, next) => {
   try {
@@ -22,12 +23,24 @@ const sendMessage = async (req, res, next) => {
 
     let message = await MessageDB.create(newMessage);
     message = await MessageDB.findById(message._id)
-      .populate("sender", "-password")
-      .populate("chat");
-    message = await UserDB.populate(message, {
-      path: "chat.users",
-      select: "-password",
-    });
+      .populate({
+        path: "sender",
+        select: "-password",
+        connection: accountDbConnection,
+      })
+      .populate({
+        path: "chat",
+        populate: {
+          path: "users",
+          select: "-password",
+          connection: accountDbConnection,
+        },
+        connection: accountDbConnection,
+      });
+    // message = await UserDB.populate(message, {
+    //   path: "chat.users",
+    //   select: "-password",
+    // });
 
     await ChatDB.findByIdAndUpdate(chatId, { latestMessage: message });
     resMsg(res, "Send message", message);
@@ -55,13 +68,16 @@ const allMessages = async (req, res, next) => {
       .populate({
         path: "sender",
         select: "-password",
+        connection: accountDbConnection,
       })
       .populate({
         path: "chat",
         populate: {
           path: "users",
           select: "-password",
+          connection: accountDbConnection,
         },
+        connection: accountDbConnection,
       })
       .sort({ createdAt: -1 });
 

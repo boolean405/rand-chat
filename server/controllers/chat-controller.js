@@ -1,6 +1,7 @@
 const ChatDB = require("../models/chat-model");
 const UserDB = require("../models/user-model");
 const { resMsg } = require("../utils/core");
+const { accountDbConnection } = require("../utils/db");
 
 const createOrAccessChat = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ const createOrAccessChat = async (req, res, next) => {
     }
 
     let isChat = await ChatDB.find({
-      isGroupChat: false,
+      isGroupChat: false, 
       $and: [
         {
           users: { $elemMatch: { $eq: req.user._id } },
@@ -23,12 +24,25 @@ const createOrAccessChat = async (req, res, next) => {
           users: { $elemMatch: { $eq: receiverId } },
         },
       ],
-    }).populate("users latestMessage", "-password");
+    })
+      .populate({
+        path: "users",
+        select: "-password",
+        connection: accountDbConnection,
+      })
+      .populate({
+        path: "latestMessage",
+        populate: {
+          path: "sender",
+          select: "-password",
+          connection: accountDbConnection,
+        },
+      });
 
-    isChat = await UserDB.populate(isChat, {
-      path: "latestMessage.sender",
-      select: "name picture email",
-    });
+    // isChat = await UserDB.populate(isChat, {
+    //   path: "latestMessage.sender",
+    //   select: "name picture email",
+    // });
 
     if (isChat.length > 0) {
       resMsg(res, "Accessed PM chat", isChat);
@@ -40,10 +54,13 @@ const createOrAccessChat = async (req, res, next) => {
       };
 
       const createdChat = await ChatDB.create(chatData);
-      const dbChat = await ChatDB.findById(createdChat._id).populate(
-        "users latestMessage",
-        "-password"
-      );
+      const dbChat = await ChatDB.findById(createdChat._id)
+        .populate("latestMessage")
+        .populate({
+          path: "users",
+          select: "-password",
+          connection: accountDbConnection,
+        });
       resMsg(res, "Created PM chat", dbChat);
     }
   } catch (err) {
@@ -61,12 +78,14 @@ const fetchChat = async (req, res, next) => {
       .populate({
         path: "users groupAdmin",
         select: "-password",
+        connection: accountDbConnection,
       })
       .populate({
         path: "latestMessage",
         populate: {
           path: "sender",
           select: "-password",
+          connection: accountDbConnection, 
         },
       })
       .sort({ updatedAt: -1 });
@@ -100,10 +119,11 @@ const createGroup = async (req, res, next) => {
       groupAdmin: req.user,
     });
 
-    const dbGroupChat = await ChatDB.findById(groupChat._id).populate(
-      "users groupAdmin",
-      "-password"
-    );
+    const dbGroupChat = await ChatDB.findById(groupChat._id).populate({
+      path: "users groupAdmin",
+      select: "-password",
+      connection: accountDbConnection,
+    });
     resMsg(res, "Created group Chat", dbGroupChat);
   } catch (err) {
     const error = new Error(err.message);
@@ -135,7 +155,11 @@ const renameGroup = async (req, res, next) => {
       chatId,
       { chatName: groupName },
       { new: true }
-    ).populate("users groupAdmin", "-password");
+    ).populate({
+      path: "users groupAdmin",
+      select: "-password",
+      connection: accountDbConnection,
+    });
 
     resMsg(res, "Renamed group chat", updatedChat);
   } catch (err) {
@@ -176,7 +200,11 @@ const addUserToGroup = async (req, res, next) => {
       chatId,
       { $push: { users: userId } },
       { new: true }
-    ).populate("users groupAdmin", "-password");
+    ).populate({
+      path: "users groupAdmin",
+      select: "-password",
+      connection: accountDbConnection,
+    });
 
     resMsg(res, `'${dbUser.name} is added to the group chat`, updatedChat);
   } catch (err) {
@@ -217,7 +245,11 @@ const removeUserFromGroup = async (req, res, next) => {
       chatId,
       { $pull: { users: userId } },
       { new: true }
-    ).populate("users groupAdmin", "-password");
+    ).populate({
+      path: "users groupAdmin",
+      select: "-password",
+      connection: accountDbConnection,
+    });
 
     resMsg(res, `'${dbUser.name} is removed from the group chat`, updatedChat);
   } catch (err) {

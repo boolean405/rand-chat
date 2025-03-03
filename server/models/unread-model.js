@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { appDbConnection } = require("../utils/db");
 const { Schema } = mongoose;
 
 const UnreadSchema = new Schema(
@@ -11,6 +12,6 @@ const UnreadSchema = new Schema(
   }
 );
 
-const UnreadModel = mongoose.model("unread", UnreadSchema);
+const UnreadModel = appDbConnection.model("unread", UnreadSchema);
 
 module.exports = UnreadModel;

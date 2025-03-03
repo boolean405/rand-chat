@@ -1,5 +1,5 @@
 const UserDB = require("../models/user-model");
-const { Redis } = require("../utils/redis");
+const Redis = require("../utils/redis");
 const { resMsg, Encoder, Token } = require("../utils/core");
 
 const paginateUser = async (req, res, next) => {

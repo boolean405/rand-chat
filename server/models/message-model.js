@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { appDbConnection } = require("../utils/db");
 const { Schema } = mongoose;
 
 const MessageSchema = new Schema(
@@ -22,6 +23,6 @@ const MessageSchema = new Schema(
 MessageSchema.index({ sender: 1, chat: 1 });
 MessageSchema.index({ type: 1 });
 
-const MessageModel = mongoose.model("message", MessageSchema);
+const MessageModel = appDbConnection.model("message", MessageSchema);
 
 module.exports = MessageModel;

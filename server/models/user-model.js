@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { accountDbConnection } = require("../utils/db");
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -28,6 +29,6 @@ UserSchema.pre("save", function (next) {
   next();
 });
 
-const UserModel = mongoose.model("user", UserSchema);
+const UserModel = accountDbConnection.model("user", UserSchema);
 
 module.exports = UserModel;

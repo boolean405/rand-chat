@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { appDbConnection } = require("../utils/db");
 const { Schema } = mongoose;
 
 const ChatSchema = new Schema(
@@ -20,6 +21,6 @@ const ChatSchema = new Schema(
   }
 );
 
-const ChatModel = mongoose.model("chat", ChatSchema);
+const ChatModel = appDbConnection.model("chat", ChatSchema);
 
 module.exports = ChatModel;
